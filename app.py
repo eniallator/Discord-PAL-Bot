@@ -11,7 +11,7 @@ config.read("auth.ini")
 
 if not TOKEN:
     try:
-        TOKEN = config.get("discord", "token")
+        TOKEN = config.get("secret", "token")
     except configparser.NoSectionError:
         raise Exception(
             "Specify discord token either with a auth.ini file or as an argument."
@@ -27,7 +27,7 @@ PAL_OUTPUT = int(config.get("config", "pal-questions-output-channel"))
 async def command_handler(message, user_command):
     if user_command.lower().split(" ")[0] == "help":
         help_command = " ".join(user_command.split(" ")[1:])
-        help_message = COMMANDS.get_help(help_command, CLIENT, help_command, message)
+        help_message = COMMANDS.help(help_command, CLIENT, help_command, message)
         await message.channel.send(help_message)
     else:
         output = await COMMANDS.execute(user_command, CLIENT, user_command, message)

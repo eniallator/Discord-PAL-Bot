@@ -145,14 +145,14 @@ class CommandSystem(BaseCommand):
                 help_message += "\n`" + prefix + cmd_string + "`: " + help_summary
         return help_message + "\nTo learn more about a command, use `help <command>`"
 
-    def get_help(self, help_cmd, *args, prefix=""):
+    def help(self, help_cmd, *args, prefix=""):
         """Makes the help for this command system/a child command system and messages it back"""
         cmd_args = help_cmd.split(" ")
         new_prefix = prefix + self._system_name + " "
         cmd = self._lookup_cmd(cmd_args[0]) if cmd_args else None
         if cmd:
             if isinstance(cmd, CommandSystem):
-                return cmd.get_help(" ".join(cmd_args[1:]), *args, prefix=new_prefix)
+                return cmd.help(" ".join(cmd_args[1:]), *args, prefix=new_prefix)
             else:
                 return cmd.get_individual_help(args, help_full=True)
         elif not cmd_args or cmd_args == [""]:

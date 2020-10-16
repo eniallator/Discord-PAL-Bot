@@ -39,15 +39,8 @@ class CommandSystem(BaseCommand):
         ):
             raise ValueError("Could not find command system.")
 
-    def _validate_permissions(self, cmd, args, kwargs=None):
-        call_checker = (
-            lambda func, args, kwargs: func(*args, **kwargs) if kwargs else func(*args)
-        )
-        if callable(cmd["check_perms"]) and not call_checker(
-            cmd["check_perms"], args, kwargs
-        ):
-            return False
-        return True
+    def _validate_permissions(self, cmd, args, kwargs={}):
+        return not callable(cmd["check_perms"]) or cmd["check_perms"](*args, **kwargs)
 
     def add_command(
         self,
@@ -126,23 +119,19 @@ class CommandSystem(BaseCommand):
                 return "Error insufficient permissions for this command."
         else:
             if self._system_name:
-                return (
-                    "Unknown "
-                    + self._system_name
-                    + ' command. Use "help" to get a list of commands.'
-                )
+                return f'Unknown {self._system_name} command. Use "help" to get a list of commands.'
             return 'Unknown command. Use "help" to get a list of commands.'
 
     def _gen_help(self, args, prefix=""):
         """Generates the help for the command system"""
         help_message = "Showing help:"
         if self._system_name:
-            help_message = "Showing help for " + self._system_name + ": "
+            help_message = f"Showing help for {self._system_name}: "
         for cmd_string in self._commands:
             cmd = self._commands[cmd_string]
             if self._validate_permissions(cmd, args):
                 help_summary = cmd.get_individual_help(args)
-                help_message += "\n`" + prefix + cmd_string + "`: " + help_summary
+                help_message += f"\n`{prefix}{cmd_string}`: {help_summary}"
         return help_message + "\nTo learn more about a command, use `help <command>`"
 
     def help(self, help_cmd, *args, prefix=""):

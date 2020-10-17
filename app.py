@@ -40,6 +40,14 @@ async def on_ready():
     print(f'Bot logged in with name: "{CLIENT.user.name}" and id: {CLIENT.user.id}')
 
 
+async def user_in_guild(user_id, guild):
+    try:
+        await guild.fetch_member(user_id)
+    except (discord.HTTPException, discord.Forbidden):
+        return False
+    return True
+
+
 @CLIENT.event
 async def on_message(message):
     if message.author.bot:
@@ -52,7 +60,7 @@ async def on_message(message):
     is_DM = isinstance(message.channel, discord.DMChannel)
     if not is_DM and message.channel != input_channel:
         return
-    if is_DM and message.author not in guild.members:
+    if is_DM and not await user_in_guild(message.author.id, guild):
         await message.channel.send(
             f"You don't appear to be in the sussex enginf discord server. You need to be in the server to ask questions."
         )
